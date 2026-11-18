@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 // Rock - Paper - Scissors : starter script
 // Follow the slides and complete every TODO.
@@ -11,13 +12,18 @@ public class GameController : MonoBehaviour
     Image imgYou;       // your selected image (rock, paper, scissor)
     Image imgCom;       // computer selected image (rock, paper, scissor)
 
-    Text txtYou;        // the score you win
-    Text txtCom;        // the score computer win
-    Text txtResult;     // the result
+    TMP_Text txtYou;        // the score you win
+    TMP_Text txtCom;        // the score computer win
+    TMP_Text txtResult;     // the result
 
     int cntYou = 0;     // number you win
     int cntCom = 0;     // number computer win
 
+    void Start()
+    {
+        // init the game
+        InitGame();
+    }
 
     private void InitGame()
     {
@@ -27,13 +33,20 @@ public class GameController : MonoBehaviour
         // Also find: ImgCom, TxtYou, TxtCom, TxtResult_
 
         // TODO: set the text of txtResult to "Select the button below"
-    }
 
-    void Start()
-    {
-        // init the game
-        InitGame();
-    }
+       
+        imgYou = GameObject.Find("ImageYou").GetComponent<Image>();
+        imgCom = GameObject.Find("ImageCom").GetComponent<Image>();
+
+        txtYou = GameObject.Find("TxtYou").GetComponent<TMP_Text>();
+        txtCom = GameObject.Find("TxtCom").GetComponent<TMP_Text>();
+        txtResult = GameObject.Find("Text_Result").GetComponent<TMP_Text>();
+
+        txtResult.text = "Select the button below";
+    
+}
+
+    
 
     // Update is called once per frame
     void Update()
@@ -51,13 +64,34 @@ public class GameController : MonoBehaviour
     {
         Debug.Log(buttonObject.name + " clicked ");
 
-        // TODO (slide 34): get the number from the first character of the button name
-        // int you = int.Parse(buttonObject.name.Substring(0, 1));
-        // CheckResult(you);
+        
+        int you = int.Parse(buttonObject.name.Substring(0, 1));
+        CheckResult(you);
     }
 
     void CheckResult(int yourResult)
     {
+        int comResult = UnityEngine.Random.Range(1, 4);
+        int k = yourResult - comResult;
+
+        if (k == 0)
+        {
+            txtResult.text = "Draw.";
+        }
+        else if (k == 1 || k == -2)
+        {
+            txtResult.text = "You win.";
+            cntYou++;
+        }
+        else
+        {
+            txtResult.text = "Computer win.";
+            cntCom++;
+        }
+
+        SetResult(yourResult, comResult);
+        Debug.Log("Your result is: " + yourResult);
+
         // TODO (slide 33): game logic
         // 1. com = random number 1..3  ->  UnityEngine.Random.Range(1, 4)
         // 2. k = you - com
@@ -65,15 +99,25 @@ public class GameController : MonoBehaviour
         //    k == 1 or k == -2   -> "You win."       (cntYou++)
         //    otherwise           -> "Computer win."  (cntCom++)
         // 4. call SetResult(yourResult, comResult)
-        Debug.Log("Your result is: " + yourResult);
+
     }
 
     void SetResult(int you, int com)
     {
+        imgYou.sprite = Resources.Load("img_" + you, typeof(Sprite)) as Sprite;
+        imgCom.sprite = Resources.Load("img_" + com, typeof(Sprite)) as Sprite;
+
+        imgCom.transform.localScale = new Vector3(-1, 1, 1);
+
+        txtYou.text = cntYou.ToString();
+        txtCom.text = cntCom.ToString();
+
         // TODO (slide 41):
         // 1. change imgYou.sprite and imgCom.sprite
         //    Resources.Load("img_" + you, typeof(Sprite)) as Sprite
         // 2. flip the computer image on the x axis: localScale = (-1, 1, 1)
         // 3. update txtYou.text and txtCom.text with the scores
+
+
     }
 }
