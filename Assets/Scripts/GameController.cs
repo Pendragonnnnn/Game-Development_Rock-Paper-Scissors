@@ -9,15 +9,21 @@ using TMPro;
 // 1 = Rock, 2 = Paper, 3 = Scissors, 4 = Unknown ("?")
 public class GameController : MonoBehaviour
 {
+    private const int WinsToWin = 4;
+    bool isMatchOver = false;
+
     Image imgYou;       // your selected image (rock, paper, scissor)
     Image imgCom;       // computer selected image (rock, paper, scissor)
 
     TMP_Text txtYou;        // the score you win
     TMP_Text txtCom;        // the score computer win
     TMP_Text txtResult;     // the result
+    [SerializeField] TMP_Text txtGameOver;
 
     int cntYou = 0;     // number you win
     int cntCom = 0;     // number computer win
+
+
 
     void Start()
     {
@@ -41,6 +47,7 @@ public class GameController : MonoBehaviour
         txtYou = GameObject.Find("TxtYou").GetComponent<TMP_Text>();
         txtCom = GameObject.Find("TxtCom").GetComponent<TMP_Text>();
         txtResult = GameObject.Find("Text_Result").GetComponent<TMP_Text>();
+        txtGameOver = GameObject.Find("GameOverTitle").GetComponent<TMP_Text>();
 
         txtResult.text = "Select the button below";
     
@@ -71,6 +78,8 @@ public class GameController : MonoBehaviour
 
     void CheckResult(int yourResult)
     {
+        if (isMatchOver) return;
+
         int comResult = UnityEngine.Random.Range(1, 4);
         int k = yourResult - comResult;
 
@@ -91,6 +100,20 @@ public class GameController : MonoBehaviour
 
         SetResult(yourResult, comResult);
         Debug.Log("Your result is: " + yourResult);
+
+        if (cntYou >= WinsToWin)
+        {
+            isMatchOver = true;
+            txtGameOver.text = $"You win the Best of 7! ({cntYou} - {cntCom})";
+            FindFirstObjectByType<GameScreenController>().ShowGameOver();
+        }
+        else if (cntCom >= WinsToWin)
+        {
+            isMatchOver = true;
+            txtGameOver.text = $"Computer wins the Best of 7! ({cntYou} - {cntCom})";
+            FindFirstObjectByType<GameScreenController>().ShowGameOver();
+        }
+        
 
         // TODO (slide 33): game logic
         // 1. com = random number 1..3  ->  UnityEngine.Random.Range(1, 4)
@@ -119,5 +142,24 @@ public class GameController : MonoBehaviour
         // 3. update txtYou.text and txtCom.text with the scores
 
 
+    }
+
+    public void ResetMatch()
+    {
+        cntYou = 0;
+        cntCom = 0;
+        isMatchOver = false;
+
+        txtYou.text = "0";
+        txtCom.text = "0";
+        txtResult.text = "Best of 7 (First to 4) - Select a button";
+
+        Sprite unknownSprite = Resources.Load("img_4", typeof(Sprite)) as Sprite;
+        if (unknownSprite != null)
+        {
+            imgYou.sprite = unknownSprite;
+            imgCom.sprite = unknownSprite;
+            imgCom.transform.localScale = new Vector3(-1, 1, 1);
+        }
     }
 }
